@@ -1,0 +1,13 @@
+ansible-master ansible_ssh_host=80.209.239.143
+webserv1 ansible_ssh_host=80.209.239.143 ansible_ssh_user=root ansible_ssh_pass=p2ghPb95G9BH pipelining=True
+webserv2 ansible_ssh_host=80.209.239.143 ansible_ssh_user=root ansible_ssh_pass=p2ghPb95G9BH pipelining=True
+pgserv1  ansible_ssh_host=80.209.239.143 ansible_ssh_user=root ansible_ssh_pass=p2ghPb95G9BH pipelining=True
+
+[webserv]
+webserv1
+
+[dbserv]
+pgserv1
+
+[server_mariadb]
+webserv1

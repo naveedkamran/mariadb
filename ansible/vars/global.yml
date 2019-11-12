@@ -1,0 +1,97 @@
+domain_name:
+  main: ultratendency.net
+
+app:
+  rabbitmq:
+    name: rabbitmq
+    port_http: 9941
+    port_https: 9942
+
+dir_base: /home/vagrant
+dir_server_data: "{{ dir_base }}/server-data/production"
+dir_prod_data: "{{ dir_base }}/prod-data"
+
+required_directory_structure:
+  - "{{ dir_base }}"
+  - "{{ dir_base }}/backups"
+  - "{{ dir_prod_data }}"
+  - "{{ dir_prod_data }}/certs"
+  - "{{ dir_prod_data }}/registry"
+
+company_info:
+  county_code: DE
+  common_name: ultratendency.com
+  organization_name: ultratendency
+  organizational_unit_name: DEV
+  state_or_province_name: Berlin
+
+tls_applications:
+  - activemq
+  - adminer
+  - alertmanager
+  - api
+  - artifactory
+  - cadvisor
+  - docker
+  - docker-registry
+  - grafana
+  - jenkins
+  - mysql
+  - node-exporter
+  - openjdk8
+  - postgres
+  - prometheus
+  - rabbitmq
+  - nginx
+
+time_zone: "Europe/Berlin"
+
+networks:
+  general: general
+  db: db-net
+  front_end: front_end-net
+  registry: registry-net
+
+certs_home: "{{ dir_prod_data }}/certs"
+ca_home: "{{ certs_home }}/ca"
+ca_key: ultratendency_ca.key
+ca_cert: ultratendency_ca.pem
+ca_key_path: "{{ ca_home }}/{{ ca_key }}"
+ca_cert_path: "{{ ca_home }}/{{ ca_cert }}"
+docker_compose_version: "3.7"
+
+docker_name: docker
+docker_registry_ip: 89.47.164.233
+docker_server_cert: "{{ certs_home }}/{{ docker_name }}/server-cert.pem"
+docker_server_key: "{{ certs_home }}/{{ docker_name }}/server-key.pem"
+docker_client_cert: "{{ certs_home }}/{{ docker_name }}/client-cert.pem"
+docker_client_key: "{{ certs_home }}/{{ docker_name }}/client-key.pem"
+
+elastic_name: elastic
+
+mysql_name: mysql
+mysql_server_cert: "{{ certs_home }}/{{ mysql_name }}/server-cert.pem"
+mysql_server_key: "{{ certs_home }}/{{ mysql_name }}/server-key.pem"
+mysql_client_cert: "{{ certs_home }}/{{ mysql_name }}/client-cert.pem"
+mysql_client_key: "{{ certs_home }}/{{ mysql_name }}/client-key.pem"
+mysql_hostname: db-mysql5-master
+mysql_username: ultratendency
+mysql_password: Ho09Fye&%
+mysql_root_password: Do1ta87Kh00h
+
+postgres_name: postgres
+postgres_server_cert: "{{ certs_home }}/{{ postgres_name }}/server-cert.pem"
+postgres_server_key: "{{ certs_home }}/{{ postgres_name }}/server-key.pem"
+postgres_client_cert: "{{ certs_home }}/{{ postgres_name }}/client-cert.pem"
+postgres_client_key: "{{ certs_home }}/{{ postgres_name }}/client-key.pem"
+postgres_hostname: db-postgres5-master
+postgres_username: ultratendency
+postgres_password: Ho09Fye&%
+postgres_root_password: Do1ta87Kh00h
+
+rabbitmq_name: rabbitmq
+rabbitmq_default_username: ultratendency
+rabbitmq_default_password: Ho09Fye&%
+
+google_sso_client_id: 335217747670-64e7236vh9mec713pot5i7mej1g62scg.apps.googleusercontent.com
+google_sso_client_secret: 3ycwEODTN8i1dv5kHmmtRft2

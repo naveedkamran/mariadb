@@ -18,6 +18,8 @@ default_pip_package:
     version: "7.2"
 
 core_packages:
+  - name: python
+    state: present
   # - name: software-properties-common
   #   state: present
   # - name: python-pip

@@ -1,0 +1,25 @@
+---
+- hosts: webserv
+
+  vars_files:
+    - ../../../vars/global.yml
+    - ../../../vars/dependencies.yml
+
+  tasks:
+    - name: Creating required directory structure
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0777"
+        recurse: yes
+        owner: root
+      with_items:
+        - "{{ required_directory_structure }}"
+      become: yes
+      register: command_result
+
+    - debug:
+        msg: "{{item.msg}}"
+      failed_when: '"finished with status ''done''" not in item.msg'
+      when: item.msg  is defined
+      with_items: "{{ command_result.results }}"

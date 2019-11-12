@@ -1,0 +1,15 @@
+{
+	"hosts": [
+		"fd://",
+		"unix:///var/run/docker.sock",
+		"tcp://127.0.0.1:2375",
+		"tcp://0.0.0.0:2376"
+	],
+	"debug": true,
+	"tls": true,
+	"tlsverify": true,
+	"tlscacert": "{{ dir_prod_data }}/certs/ca/bunnycrm_ca.pem",
+	"tlscert": "{{ dir_prod_data }}/certs/docker/server-cert.pem",
+	"tlskey": "{{ dir_prod_data }}/certs/docker/server-key.pem",
+	"insecure-registries" : ["{{ docker_registry_ip }}:5000"]
+}

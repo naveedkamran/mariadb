@@ -1,0 +1,28 @@
+---
+
+  - hosts: webserv
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+
+    tasks:
+      - name: Restart db-mysql5-master
+        docker_container:
+          name: db-mysql5-master
+          state: started
+
+      - name: Restart db-postgres-master
+        docker_container:
+          name: db-postgres-master
+          state: started
+
+      - name: Restart db-adminer
+        docker_container:
+          name: db-adminer
+          state: started
+
+      - name: Restart registry
+        docker_container:
+          name: registry
+          state: started

@@ -1,0 +1,71 @@
+---
+#not used
+- set_fact:
+    docker_ssl: ""
+  when: setup == "node"
+
+- set_fact:
+    docker_ssl: >-
+      --tlsverify --tlscacert {{ docker_ssl_cert_path }}/ca-docker-daemon.pem
+      --tlscert {{ docker_ssl_cert_path }}/docker-node-cert.pem
+      --tlskey {{ docker_ssl_cert_path }}/docker-node-key.pem
+  when: setup == "node-ssl"
+
+- set_fact:
+    daemon_port: "2375"
+  when: setup == "node"
+
+- set_fact:
+    daemon_port: "2376"
+  when: setup == "node-ssl"
+
+- name: Create /opt/.docker
+  shell: "sudo mkdir /opt/.docker"
+  ignore_errors: yes
+
+- name: Start docker swarm.
+  include: start_docker_swarm.yml
+  #delegate_to: "{{ docker_swarm }}"
+  #ignore_errors: true
+
+- name: Copy nodelist to swarm host if it's not already present
+  copy:
+    src: "nodelist"
+    dest: "{{ docker_nodelist_path }}/nodelist"
+    force: no
+  #delegate_to: "{{ swarm_host }}"
+
+  
+- name: Insert ip into nodelist
+  lineinfile:
+    dest: "{{ docker_nodelist_path }}/{{ docker_nodelist_name }}"
+    line: "{{ ip_addr }}:{{ daemon_port }}"
+    regexp: "{{ ip_addr }}"
+    state: present
+    insertafter: EOF
+    create: True
+  become: True
+  #delegate_to: "{{ docker_swarm }}"
+
+
+#- block:
+#  - name: Check if swarm is running
+#    command: "docker -H {{ host }} ps"
+#    register: check_result
+#    #ignore_errors: yes
+#  rescue:
+#  - name: Start docker swarm if it isn't running
+#    include: start_docker_swarm.yml
+#    vars:
+#      host: "{{ host }}"
+#      docker_ssl: "{{ docker_ssl }}"
+
+#- debug:
+#    msg: "{{ check_result }}"
+#
+#- name: Start docker swarm if it isn't running
+#  include: start_docker_swarm.yml
+#  vars:
+#    docker_swarm: host
+#    docker_ssl: docker_ssl
+#  when: "'Cannot connect' in {{ check_result }}"

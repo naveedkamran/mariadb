@@ -1,0 +1,153 @@
+---
+
+  - hosts: webserv
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+
+    tasks:
+
+      - name: Creating required directory structure {{ certs_home }}
+        file:
+          path: "{{ certs_home }}"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          mode: 0777
+        become: yes
+
+      - name: "Creating required directory structure {{ certs_home }}/{{ item }}"
+        file:
+          path: "{{ certs_home }}/{{ item }}"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          mode: 0777
+        become: yes
+        loop: "{{ tls_applications }}"
+
+      - name: Creating required directory structure {{ certs_home }}/ca
+        file:
+          path: "{{ certs_home }}/ca"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          mode: 0777
+        become: yes
+
+      ################ Generating ca certs ######################
+
+      - name: "generate our CA key"
+        openssl_privatekey:
+          path: "{{ ca_home }}/{{ ca_key }}"
+        register: key_change
+
+      - name: Creating docker daemon certificates ca.pem
+        ignore_errors: no
+        command: "openssl req -new -x509 -days 365 -key {{ ca_home }}/{{ ca_key }} -sha256 -out {{ ca_home }}/{{ ca_cert }} -subj \"/C=DE/ST=Berlin/L=Berlin/O=ultratendency Pvt Ltd/OU=ultratendency Gmbh/CN=ultratendency.com\""
+        when: key_change.changed
+
+      - name: Restarting applications
+        debug:
+          msg: Restarting applications due to a change in the ca cert
+        notify:
+        - "Restart {{ item }}"
+        loop: "{{ tls_applications }}"
+        when: key_change.changed
+
+      ################ Generating server certs ######################
+
+      - name: "generate our server application keys"
+        openssl_privatekey:
+          path: "{{ certs_home }}/{{ item }}/server-key.pem"
+          mode: 0644
+        loop: "{{ tls_applications }}"
+
+
+      - name: Generate server CSRs
+        openssl_csr:
+          path: "{{ certs_home }}/{{ item }}/server.csr"
+          privatekey_path: "{{ certs_home }}/{{ item }}/server-key.pem"
+          subject:
+            CN: "{{ item }}"
+            C:  "{{ company_info.county_code }}"
+            O:  "{{ company_info.organization_name }}"
+            OU: "{{ company_info.organizational_unit_name }}"
+            ST: "{{ company_info.state_or_province_name }}"
+          subject_alt_name:
+           - "DNS:www.ultratendency.net"
+           - "DNS:www.bunnycrm.net"
+           - "DNS:{{ item }}"
+           - "URI:https://{{ item }}"
+           - "URI:{{ item }}"
+           - "URI:localhost"
+           - "IP:89.47.164.233"
+          extended_key_usage:
+            - "serverAuth"
+            - "clientAuth"
+          mode: 0644
+        register: result
+        loop: "{{ tls_applications }}"
+
+      - name: Sign our server certs
+        openssl_certificate:
+          path: "{{ certs_home }}/{{ item }}/server-cert.pem"
+          csr_path: "{{ certs_home }}/{{ item }}/server.csr"
+          ownca_path: "{{ ca_home }}/{{ ca_cert }}"
+          ownca_privatekey_path: "{{ ca_home }}/{{ ca_key }}"
+          provider: "ownca"
+          mode: 0644
+        # notify:
+        # - "Restart {{ item }}"
+        loop: "{{ tls_applications }}"
+
+      ################ Generating client certs ######################
+
+      - name: "generate our server application keys"
+        openssl_privatekey:
+          path: "{{ certs_home }}/{{ item }}/client-key.pem"
+          mode: 0644
+        loop: "{{ tls_applications }}"
+
+      - name: Generate client CSRs
+        openssl_csr:
+          path: "{{ certs_home }}/{{ item }}/client.csr"
+          privatekey_path: "{{ certs_home }}/{{ item }}/client-key.pem"
+          subject:
+            CN: "{{ item }}"
+            C:  "{{ company_info.county_code }}"
+            O:  "{{ company_info.organization_name }}"
+            OU: "{{ company_info.organizational_unit_name }}"
+            ST: "{{ company_info.state_or_province_name }}"
+          subject_alt_name:
+           - "DNS:www.ultratendency.net"
+           - "DNS:www.bunnycrm.net"
+           - "DNS:{{ item }}"
+           - "URI:https://{{ item }}"
+           - "URI:{{ item }}"
+          extended_key_usage:
+            - "serverAuth"
+            - "clientAuth"
+          mode: 0644
+        register: result
+        loop: "{{ tls_applications }}"
+
+      - name: Sign our client certs
+        openssl_certificate:
+          path: "{{ certs_home }}/{{ item }}/client-cert.pem"
+          csr_path: "{{ certs_home }}/{{ item }}/client.csr"
+          ownca_path: "{{ ca_home }}/{{ ca_cert }}"
+          ownca_privatekey_path: "{{ ca_home }}/{{ ca_key }}"
+          provider: "ownca"
+          mode: 0744
+        # notify:
+        # - "Restart {{ item }}"
+        loop: "{{ tls_applications }}"
+
+      # - name: Check if docker is running
+      #   systemd:
+      #     name: docker
+      #     daemon_reload: yes
+      #   ignore_errors: yes
+      #   become: yes
+      #   changed_when: false
+        # notify: Restart activemq
+        # register: service_docker_status

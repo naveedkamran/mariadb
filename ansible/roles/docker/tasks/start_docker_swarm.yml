@@ -1,0 +1,39 @@
+---
+#not used
+
+
+#- set_fact:
+#    docker_ssl: ""
+#  when: setup == "node"
+#
+#- set_fact:
+#    docker_ssl: >-
+#      --tlsverify --tlscacert {{ docker_cert_path }}/ca-docker-daemon.pem
+#      --tlscert {{ docker_cert_path }}/docker-node-cert.pem
+#      --tlskey {{ docker_cert_path }}/docker-node-key.pem
+#  when: setup == "node-ssl"
+
+- set_fact:
+    swarm_opts: >-
+      -d -p 3375:3375 -v
+      {{ docker_nodelist_path }}:{{ docker_nodelist_path }}:ro
+      swarm manage --strategy spread --host=0.0.0.0:3375
+  when: setup == "node"
+
+- set_fact:
+    swarm_opts: >-
+      -d -p 3376:3376
+      -v {{ docker_ssl_cert_path }}:{{ docker_ssl_cert_path }}:ro
+      -v {{ docker_nodelist_path }}:{{ docker_nodelist_path }}:ro 
+      swarm manage --strategy spread
+      --tlsverify
+      --tlscacert {{ docker_ssl_cert_path }}/ca-docker-daemon.pem
+      --tlscert {{ docker_ssl_cert_path }}/docker-node-cert.pem
+      --tlskey {{ docker_ssl_cert_path }}/docker-node-key.pem
+      --host=0.0.0.0:3376
+  when: setup == "node-ssl"
+
+# - name: Start swarm container
+#   shell: "sudo docker run --name swarm {{ swarm_opts }} file://{{ docker_nodelist_path }}/{{ docker_nodelist_name }}"
+  #ignore_errors: yes
+  #when: swarm_status !=true

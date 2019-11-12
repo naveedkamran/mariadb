@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#start=$("date +%d-%m-%Y %H:%M:%S")
+fileName=$(date +'%Y-%m-%d')
+
+file="db_names.txt"
+
+counter=1
+
+while IFS= read line
+do
+	now=$(date +"%d-%m-%Y %H:%M:%S")
+	echo "$now :: Backing up database $counter $line" >> {{ logs_file_name }}
+	sudo docker exec db-mysql5-master mysqldump -u root -p{{ mysql_root_password }}  --ssl-ca=/etc/mysql/ca.pem --ssl-cert=/etc/mysql/client-cert.pem --ssl-key=/etc/mysql/client-key.pem $line > "{{ dir_db_backups }}/$fileName-$line.sql"
+	"$now :: Done backing up database $counter $line" >> {{ dir_prod_data_role }}/{{ logs_file_name }}
+	let counter++
+done <"$file"
+
+echo "$now :: done exporting all databases" >> {{ logs_file_name }}
+
+#Delete files older than 5 days
+find {{ dir_db_backups }}* -type d -ctime +5 -exec rm -rf {} \;
+
+echo "" >> {{ logs_file_name }}

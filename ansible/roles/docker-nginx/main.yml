@@ -1,0 +1,13 @@
+---
+- name: Updating directory lb-nginx
+  copy:
+    src: /home/naveed/data/work/projects/ultratendency/bunnycrm/dev/bunnycrm/source/lb-nginx
+    dest: /home/ultratendency/bunnycrm/source/
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Updating file /lb-nginx/Dockerfile
+  copy:
+    src: /home/naveed/data/work/projects/ultratendency/bunnycrm/dev/bunnycrm/source/lb-nginx/Dockerfile
+    dest: /home/ultratendency/bunnycrm/source/lb-nginx/Dockerfile

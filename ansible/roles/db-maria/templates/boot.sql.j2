@@ -1,0 +1,18 @@
+create database if not exists bcrm;
+create database if not exists grafana;
+create database if not exists monitoring;
+create database if not exists db1;
+create database if not exists db2;
+create database if not exists db3;
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%'
+WITH
+GRANT OPTION;
+
+
+CREATE USER if not exists '{{ mariadb_username }}'@'%' IDENTIFIED BY '{{ mariadb_password }}';
+GRANT ALL PRIVILEGES ON *.* TO '{{ mariadb_username }}'@'%'
+WITH
+GRANT OPTION;
+
+FLUSH PRIVILEGES;

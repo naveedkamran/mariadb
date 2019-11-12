@@ -1,0 +1,18 @@
+---
+
+  - hosts: webserv
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+
+    tasks:
+
+#      - name: Removing /server-data
+#        command: "rm -rf /home/vagrant/server-data"
+#        ignore_errors: yes
+
+      - name: Updating directory ./server-data
+        copy:
+          src: ../../../server-data
+          dest: /home/vagrant/

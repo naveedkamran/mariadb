@@ -1,0 +1,101 @@
+---
+
+  - hosts: server_mysql_master
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+    - ../vars/main.yml
+
+    tasks:
+
+      - name: Creating required directory structure
+        file:
+          path: "{{ item }}"
+          state: directory
+          mode: "0777"
+          recurse: yes
+          owner: root
+        with_items:
+          - "{{ required_directory_structure }}"
+        become: yes
+        register: directory_creation_status
+
+      - name: Create a network
+        docker_network:
+          name: "{{ networks.db }}"
+          state: present
+        become: yes
+
+      - name: Generating template files
+        template:
+          src: ../templates/{{ item.src }}
+          dest: "{{ dir_prod_data_role }}/{{ item.dest }}"
+          mode: "{{ item.mode }}"
+        with_items: "{{ template_files }}"
+
+      - name: Copying config files
+        copy:
+          src: ../files/{{ item.src }}
+          dest: "{{ dir_prod_data_role }}/{{ item.dest }}"
+          mode: "{{ item.mode }}"
+        with_items: "{{ config_files }}"
+
+      - name: Create {{ role_name }} container
+        docker_compose:
+          docker_host: unix://var/run/docker.sock
+          project_name: "mysql"
+          build: yes
+          nocache: yes
+          recreate: always
+
+          definition:
+            version: '3.2'
+            networks:
+              network:
+                external:
+                  name: "{{ networks.db }}"
+            services:
+              db-maria-master:
+                container_name: db-maria-master
+                image: 'bitnami/mariadb:10.3'
+                ports:
+                  - '3306'
+                volumes:
+                  - "{{ dir_prod_data_role }}:/bitnami/mariadb"
+                  - "{{ dir_prod_data_role }}/sql/boot.sql:/docker-entrypoint-initdb.d/boot.sql"
+                environment:
+                  - MARIADB_REPLICATION_MODE=master
+                  - MARIADB_REPLICATION_USER={{ mariadb_username }}
+                  - MARIADB_USER={{ mariadb_username }}
+                  - MARIADB_DATABASE=db1
+                  # ALLOW_EMPTY_PASSWORD is recommended only for development.
+                  - ALLOW_EMPTY_PASSWORD=yes
+                  - MARIADB_ROOT_PASSWORD={{ mariadb_password }}
+              db-maria-slave:
+                container_name: db-maria-slave
+                image: 'bitnami/mariadb:10.3'
+                ports:
+                  - '3306'
+                depends_on:
+                  - db-maria-master
+                environment:
+                  - MARIADB_REPLICATION_MODE=slave
+                  - MARIADB_REPLICATION_USER={{ mariadb_username }}
+                  - MARIADB_USER={{ mariadb_username }}
+                  - MARIADB_DATABASE=db1
+                  - MARIADB_MASTER_HOST=db-maria-master
+                  - MARIADB_MASTER_PORT_NUMBER=3306
+                  - MARIADB_MASTER_ROOT_PASSWORD={{ mariadb_password }}
+                  # ALLOW_EMPTY_PASSWORD is recommended only for development.
+                  - ALLOW_EMPTY_PASSWORD=yes
+          recreate: always
+          remove_orphans: yes
+          build: yes
+        register: output
+        become: yes
+
+      - name: "Creating backup crone"
+        cron:
+          name: "Backing up mariadb databases"
+          job: "{{ dir_prod_data_role }}/mariadb-backup.sh"

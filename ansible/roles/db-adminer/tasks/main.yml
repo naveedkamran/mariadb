@@ -1,0 +1,48 @@
+---
+
+  - hosts: webserv
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+
+    tasks:
+
+      - name: Create a network
+        docker_network:
+          name: "{{ networks.db }}"
+          state: present
+          ipam_options:
+            subnet: '172.3.26.0/16'
+            gateway: '172.3.26.1'
+            iprange: '192.168.1.0/24'
+        become: yes
+
+      - name: Create db-adminer container
+        docker_compose:
+          docker_host: unix://var/run/docker.sock
+          project_name: "db-adminer"
+          build: yes
+          nocache: yes
+          recreate: always
+
+
+          definition:
+            version: '3.2'
+            services:
+              db-adminer:
+                image: adminer
+                container_name: db-adminer
+                # build: /home/vagrant/server-data/production/db-adminer
+                ports:
+                  - 9912:8080
+                volumes:
+                  # - "/home/vagrant/prod-data/db-adminer:/var/db-adminer_home"
+                  - "/var/run/docker.sock:/var/run/docker.sock"
+                environment:
+                  - db-adminer_DB=bcrm
+                  - db-adminer_PASSWORD={{ mysql_password }}
+                # networks:
+                #   - "{{ networks.db }}"
+        register: output
+        become: yes

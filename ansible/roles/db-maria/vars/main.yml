@@ -1,0 +1,32 @@
+role_name: db-maria
+dir_prod_data_role: "{{ dir_prod_data }}/{{ role_name }}"
+logs_file_name: db-maria.log
+dir_db_backups: "{{ dir_prod_data_role }}/backups"
+
+required_directory_structure:
+  - "{{ dir_base }}"
+  - "{{ dir_base }}/backups"
+  - "{{ dir_prod_data }}"
+  - "{{ dir_prod_data_role }}"
+  - "{{ dir_prod_data_role }}/backups"
+  - "{{ dir_prod_data_role }}/data"
+  - "{{ dir_prod_data_role }}/sql"
+
+template_files:
+  - { src: "boot.sql.j2", dest: "/sql/boot.sql", mode: "0444" }
+  - { src: "Dockerfile.j2", dest: "Dockerfile", mode: "0444" }
+  - { src: "mariadb-backup.sh.j2", dest: "mariadb-backup.sh", mode: "0544" }
+  - { src: "my.cnf.j2", dest: "my.cnf", mode: "0444" }
+
+config_files:
+  - { src: "db_names.txt", dest: "db_names.txt", mode: "0444" }
+
+mariadb_name: mariadb
+mariadb_server_cert: "{{ certs_home }}/{{ mariadb_name }}/server-cert.pem"
+mariadb_server_key: "{{ certs_home }}/{{ mariadb_name }}/server-key.pem"
+mariadb_client_cert: "{{ certs_home }}/{{ mariadb_name }}/client-cert.pem"
+mariadb_client_key: "{{ certs_home }}/{{ mariadb_name }}/client-key.pem"
+mariadb_hostname: db-mariadb5-master
+mariadb_username: ultratendency
+mariadb_password: MajaGama
+mariadb_root_password: Do1ta87Kh00h

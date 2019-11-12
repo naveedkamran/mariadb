@@ -1,0 +1,29 @@
+---
+
+  - hosts: webserv
+
+    vars_files:
+    -  ../../../vars/global.yml
+    -  ../../../vars/dependencies.yml
+
+    tasks:
+
+      - name: Creating required directory structure
+        file:
+          path: "{{ dir_backups }}"
+          state: directory
+          mode: 0777
+        become: yes
+
+      - name: Creating backup
+        command: "tar -zcvf {{ dir_backups }}/backup-{{ansible_date_time.date}}-{{ansible_date_time.hour}}{{ansible_date_time.minute}}.tar.gz {{ dir_prod_data }}"
+
+    # - name: Create a bz2 archive of a globbed path, while excluding specific dirnames
+    #   archive:
+    #     path:
+    #       - "{{ dir_prod_data }}"
+    #     dest: "{{ dir_backups }}/backup-{{ansible_date_time.date}}-{{ansible_date_time.hour}}{{ansible_date_time.minute}}.tar.bz2"
+    #     # exclude_path:
+    #     #   - /path/to/foo/bar
+    #     #   - /path/to/foo/baz
+    #     format: bz2

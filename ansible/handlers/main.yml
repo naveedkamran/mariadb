@@ -1,0 +1,56 @@
+---
+
+  - name: Reload systemd
+    systemd:
+      daemon_reload: yes
+
+  - name: check for docker
+    systemd:
+      name: docker
+      daemon_reload: yes
+    ignore_errors: yes
+    become: yes
+    changed_when: false
+    register: service_docker_status
+    listen: Restart docker
+
+  - name: Restart that docker
+    systemd:
+      name: docker
+      daemon_reload: yes
+      state: restarted
+    become: yes
+    when: service_docker_status.status.ActiveState == "active"
+    listen: Restart docker
+
+  - name: Start Docker
+    systemd:
+      name: docker
+      daemon_reload: yes
+      state: started
+    become: yes
+
+  - name: Restart activemq
+    debug:
+      msg: "Hey Activemq"
+    notify: Restart mysql
+
+  - name: Restart registry
+    debug:
+      msg: Hey docker-registry
+
+  - name: Restart mysql
+    debug:
+      msg: Hey mysql
+
+  - name: Restart controller
+    debug:
+      msg: Hey mysql
+
+  - name: Restart webapp
+    debug:
+      msg: Hey webapp
+
+  - name: Restart sender_detection
+    debug:
+      msg: Hey webapp

@@ -1,0 +1,73 @@
+---
+  #################
+  ##
+  #################
+- hosts: webserv1
+
+  tasks:
+  # - name: Include configs
+  #   include: ./configs.yml
+
+  - name: Include local list in play
+    include: ./roles/local/main.yml
+
+  # - name: Include local/webui-angular.yml task list in play
+  #   include: ./roles/webui-angular/main.yml
+
+- hosts: webserv
+  tasks:
+
+  - name: Install add-yum-repostory
+    become: yes
+    yum: name=software-properties-common state=latest
+
+  - name: Checking python
+    yum: name=python state=latest
+
+  - name: Include docker copy-data task list in play
+    include: ./roles/copy-data/main.yml
+
+  # - name: Include admin-web task list in play
+  #   include: ./roles/admin-web/main.yml
+
+  # - name: Include docker task list in play
+  #   include: ./roles/docker/main.yml
+
+  # - name: Include db-postgres task list in play
+  #   include: ./roles/db-mysql/main.yml
+
+  # - name: Include db-postgres task list in play
+  #   include: ./roles/db-postgres/main.yml
+
+  - name: Include controller task list in play
+    include: ./roles/server-controller/main.yml
+
+  - name: Include server-java task list in play
+    include: ./roles/server-java/main.yml
+
+  # - name: Include server-chat task list in play
+  #   include: ./roles/server-chat/main.yml
+
+  # - name: Include nginx tasks
+  #   include: ./roles/nginx/main.yml
+
+  # - name: Include webui-react task list in play
+  #   include: ./roles/webui-react/main.yml
+
+  # - name: Include webui-angular task list in play
+  #   include: ./roles/webui-angular/main.yml
+
+  - name: Making up bunnycrm docker-compose.yml (Running sudo docker-compose up --build)
+    docker_service:
+      project_src: /home/ultratendency/bunnycrm/source/
+
+  - name: Running sudo docker-compose down
+    command: sudo docker-compose --file /home/ultratendency/bunnycrm/source/docker-compose.yml down
+    register: myoutput
+
+  - name: Running sudo docker-compose up --build
+    command: sudo docker-compose --file /home/ultratendency/bunnycrm/source/docker-compose.yml up --build
+    register: myoutput
+
+  # - name: setup nginx
+  #   include: ./roles/nginx/main.yml

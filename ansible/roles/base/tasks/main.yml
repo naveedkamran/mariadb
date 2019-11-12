@@ -55,7 +55,3 @@
       failed_when: '"finished with status ''done''" not in item.msg'
       when: item.msg  is defined
       with_items: "{{ command_result.results }}"
-
-    - name: Include docker copy-data task list in play
-      include: ./roles/copy-data/main.yml
-      become: true

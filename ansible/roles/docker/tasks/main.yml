@@ -7,62 +7,50 @@
     - ../vars/main.yml
 
   tasks:
-  
-    - name: Install yum utils
+    - name: upgrade all packages
       yum:
-        name: yum-utils
+        name: "*"
         state: latest
 
-    - name: Install device-mapper-persistent-data
+    - name: Install required pkgs
       yum:
-        name: device-mapper-persistent-data
+        name: "{{ item }}"
         state: latest
+      with_items:
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
 
-    - name: Install lvm2
-      yum:
-        name: lvm2
-        state: latest
+    - name: Add Docker repo
+      command: "dnf install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.10-3.2.el7.x86_64.rpm --assumeyes"
+      become: yes
 
     - name: Add Docker repo
       get_url:
         url: https://download.docker.com/linux/centos/docker-ce.repo
-        dest: /etc/yum.repos.d/docer-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
       become: yes
 
     - name: Enable Docker Edge repo
       ini_file:
-        dest: /etc/yum.repos.d/docer-ce.repo
-        section: 'docker-ce-edge'
+        dest: /etc/yum.repos.d/docker-ce.repo
+        section: "docker-ce-edge"
         option: enabled
         value: 0
       become: yes
 
     - name: Enable Docker Test repo
       ini_file:
-        dest: /etc/yum.repos.d/docer-ce.repo
-        section: 'docker-ce-test'
-        option: enabled
-        value: 0
-      become: yes
-
-    - name: Add Docker repo
-      get_url:
-        url: https://github.com/containerd/containerd/archive/v1.3.0.zip
-        dest: /etc/yum.repos.d/docer-ce.repo
-      become: yes
-
-    - name: Enable Docker Edge repo
-      ini_file:
-        dest: /etc/yum.repos.d/docer-ce.repo
-        section: 'docker-ce-edge'
+        dest: /etc/yum.repos.d/docker-ce.repo
+        section: "docker-ce-test"
         option: enabled
         value: 0
       become: yes
 
     - name: Install containerd.io
-      yum:
+      package:
         name: containerd.io
-        state: present
+        state: latest
       become: yes
 
     - name: Install Docker
@@ -71,16 +59,24 @@
         state: latest
       become: yes
 
+    - name: Install docker-py
+      pip:
+        name: "{{ item }}"
+      with_items:
+        - six==1.4
+        - docker-py==1.1.0
+
+      become: yes
+
     - name: Start Docker service
       service:
         name: docker
         state: started
         enabled: yes
       become: yes
-
-    - name: Add user vagrant to docker group
-      user:
-        name: vagrant
-        groups: docker
-        append: yes
-      become: yes
+    # - name: Add user vagrant to docker group
+    #   user:
+    #     name: vagrant
+    #     groups: docker
+    #     append: yes
+    #   become: yes

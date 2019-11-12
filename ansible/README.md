@@ -2,7 +2,7 @@
 
 80.209.239.143
 ssh root@80.209.239.143
-p2ghPb95G9BH
+28uEn7HNh1Ue
 
 ## Install basic setups
 

@@ -27,6 +27,12 @@
         mode: 0744
       become: yes
 
+    - name: upgrade all packages
+      yum:
+        name: "*"
+        state: latest
+      become: yes
+
     - name: Install core packages
       yum:
         name: "{{ item.name }}"
@@ -35,11 +41,13 @@
       loop: "{{ core_packages }}"
       become: yes
 
-    # - name: Install pip
-    #   yum:
-    #     name: python-pip
-    #     update_cache: yes
-    #     state: present
+    - name: Install pip
+      command: "pip3 install pip"
+      become: yes
+
+    - name: Update alternatives for pip to pip3
+      command: "update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1"
+      become: yes
 
     - name: Install core python packages
       pip:
@@ -49,18 +57,4 @@
       ignore_errors: true
       loop: "{{ default_pip_package }}"
       register: command_result
-
-    - name: Install pip
-      command: "pip3 install pip"
-
-    - name: Update alternatives for pip to pip3
-      command: "update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1"
-
-    # - name: Install docker-py
-    #   command: "pip install docker-py"
-
-    - debug:
-        msg: "{{item.msg}}"
-      failed_when: '"finished with status ''done''" not in item.msg'
-      when: item.msg  is defined
-      with_items: "{{ command_result.results }}"
+      become: yes

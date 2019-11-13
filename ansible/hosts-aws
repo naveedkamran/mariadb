@@ -1,0 +1,13 @@
+ansible-master ansible_ssh_host=ec2-54-93-227-29.eu-central-1.compute.amazonaws.com
+webserv1 ansible_ssh_host=ec2-54-93-227-29.eu-central-1.compute.amazonaws.com ansible_ssh_user=centos ansible_ssh_private_key_file=key.pem pipelining=True
+webserv2 ansible_ssh_host=ec2-54-93-227-29.eu-central-1.compute.amazonaws.com ansible_ssh_user=centos ansible_ssh_private_key_file=key.pem pipelining=True
+pgserv1  ansible_ssh_host=ec2-54-93-227-29.eu-central-1.compute.amazonaws.com ansible_ssh_user=centos ansible_ssh_private_key_file=key.pem pipelining=True
+
+[webserv]
+webserv1
+
+[dbserv]
+pgserv1
+
+[server_mariadb]
+webserv1

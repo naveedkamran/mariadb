@@ -1,0 +1,4 @@
+ssh -i key.pem centos@ec2-54-93-227-29.eu-central-1.compute.amazonaws.com
+
+
+mkdir: cannot create directory '/bitnami/mariadb/data': Permission denied

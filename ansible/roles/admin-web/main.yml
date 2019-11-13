@@ -1,7 +1,0 @@
----
-
-- name: Updating file /admin-web
-  synchronize:
-    src: /home/naveed/data/work/projects/ultratendency/bunnycrm/dev/bunnycrm/source/admin-web
-    dest: /home/ultratendency/bunnycrm/source
-    recursive: yes

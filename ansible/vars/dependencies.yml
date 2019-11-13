@@ -16,19 +16,18 @@ default_pip_package:
     version: "19.0.0"
   - name: "php"
     version: "7.2"
+  # - name: docker-py
+  #   state: present
+  #   version: "latest"
+  - name: docker-compose
+    state: present
+    version: "latest"
 
 core_packages:
-  - name: python
+  - name: python3
     state: present
-  # - name: software-properties-common
-  #   state: present
-  # - name: python-pip
-  #   state: present
-  # - name: python-wheel
-  #   state: present
-  # - name: python-setuptools
-  #   state: present
-
+  - name: epel-release
+    state: present
   # - name: openssl
   #   state: present
   # - name: python3.6

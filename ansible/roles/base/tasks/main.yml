@@ -19,7 +19,7 @@
         mode: 0777
       become: yes
 
-    - name: "Creating required directory structure"
+    - name: "Creating required directory structure for {{ ansible_user_id }}"
       file:
         path: "/opt/venvs"
         state: directory
@@ -49,6 +49,15 @@
       ignore_errors: true
       loop: "{{ default_pip_package }}"
       register: command_result
+
+    - name: Install pip
+      command: "pip3 install pip"
+
+    - name: Update alternatives for pip to pip3
+      command: "update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1"
+
+    # - name: Install docker-py
+    #   command: "pip install docker-py"
 
     - debug:
         msg: "{{item.msg}}"

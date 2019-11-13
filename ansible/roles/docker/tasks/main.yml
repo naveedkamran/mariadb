@@ -59,12 +59,12 @@
         state: latest
       become: yes
 
-    - name: Install docker-py
-      pip:
-        name: "{{ item }}"
-      with_items:
-        - six==1.4
-        - docker-py==1.1.0
+    # - name: Install docker dependencies
+    #   pip:
+    #     name: "{{ item }}"
+    #   with_items:
+    #     - six==1.13.0
+    #     # - docker-py==1.10.6
 
       become: yes
 

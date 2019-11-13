@@ -41,12 +41,6 @@
       loop: "{{ core_packages }}"
       become: yes
 
-    # - name: Install pip
-    #   yum:
-    #     name: python-pip
-    #     update_cache: yes
-    #     state: present
-
     - name: Install pip
       command: "pip3 install pip"
       become: yes
@@ -64,5 +58,3 @@
       loop: "{{ default_pip_package }}"
       register: command_result
       become: yes
-    # - name: Install docker-py
-    #   command: "pip install docker-py"

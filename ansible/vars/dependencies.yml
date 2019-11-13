@@ -1,12 +1,54 @@
+core_packages:
+  - name: python3
+    state: present
+  # - name: pip3
+  #   state: present
+  - name: epel-release
+    state: present
+  # - name: openssl
+  #   state: present
+  # - name: python3.6
+  #   state: present
+  # - name: python3.6-distutils
+  #   state: present
+  # - name: virtualenv
+  #   state: present
+  # - name: libssl-dev
+  #   state: present
+  # - name: libffi-dev
+  #   state: present
+  # - name: build-essential
+  #   state: present
+  - name: gcc
+    state: present
+  # - name: python3-dev
+  #   state: present
+  - name: python3-pip
+    state: present
+  - name: python-pip
+    state: present
+  - name: make
+    state: present
+  - name: yum-utils
+    state: present
+    name: device-mapper-persistent-data
+    state: present
+  - name: lvm2
+    state: present
+  - name: dnf
+    state: present
+
+  # - name: tree
+  #   state: present
+
 default_pip_package:
   - name: "pip"
-    state: "present"
-    version: "19.1.1"
-  # - name: "pip2"
+    state: "absent"
+    # version: "19.1.1"
+
+  # - name: "virtualenv"
   #   state: "present"
-  - name: "virtualenv"
-    state: "present"
-    version: "16.6.2"
+  #   version: "16.6.2"
   - name: "cryptography"
     state: "present"
     version: "2.7"
@@ -22,33 +64,3 @@ default_pip_package:
   - name: docker-compose
     state: present
     version: "latest"
-
-core_packages:
-  - name: python3
-    state: present
-  - name: epel-release
-    state: present
-  # - name: openssl
-  #   state: present
-  # - name: python3.6
-  #   state: present
-  # - name: python3.6-distutils
-  #   state: present
-  - name: virtualenv
-    state: present
-  # - name: libssl-dev
-  #   state: present
-  # - name: libffi-dev
-  #   state: present
-  # - name: build-essential
-  #   state: present
-  - name: gcc
-    state: present
-  # - name: python3-dev
-  #   state: present
-  - name: python3-pip
-    state: present
-  - name: make
-    state: present
-  - name: tree
-    state: present

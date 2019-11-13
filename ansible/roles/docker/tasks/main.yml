@@ -7,20 +7,6 @@
     - ../vars/main.yml
 
   tasks:
-    - name: upgrade all packages
-      yum:
-        name: "*"
-        state: latest
-
-    - name: Install required pkgs
-      yum:
-        name: "{{ item }}"
-        state: latest
-      with_items:
-        - yum-utils
-        - device-mapper-persistent-data
-        - lvm2
-
     - name: Add Docker repo
       command: "dnf install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.10-3.2.el7.x86_64.rpm --assumeyes"
       become: yes
@@ -57,15 +43,6 @@
       package:
         name: docker-ce
         state: latest
-      become: yes
-
-    # - name: Install docker dependencies
-    #   pip:
-    #     name: "{{ item }}"
-    #   with_items:
-    #     - six==1.13.0
-    #     # - docker-py==1.10.6
-
       become: yes
 
     - name: Start Docker service

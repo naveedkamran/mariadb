@@ -53,7 +53,7 @@
       become: yes
     # - name: Add user vagrant to docker group
     #   user:
-    #     name: vagrant
+    #     name: centos
     #     groups: docker
     #     append: yes
     #   become: yes

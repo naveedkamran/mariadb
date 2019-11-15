@@ -100,5 +100,6 @@
       - name: "Creating backup crone"
         cron:
           name: "Backing up mariadb databases"
+          hour: "1"
           job: "{{ dir_prod_data_role }}/mariadb-backup.sh"
         become: yes
